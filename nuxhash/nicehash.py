@@ -1,14 +1,12 @@
 from nuxhash.nhrest.python import nicehash as nh
 
-
 HOST = 'https://api2.nicehash.com'
-
 
 def simplemultialgo_info(nx_settings):
     api = nh.public_api(HOST)
     response = api.get_multialgo_info()
-    pay_factor = 1e-9 # GH -> H/s/day
-    return {algorithm['algorithm'].lower(): float(algorithm['paying'])*pay_factor
+    pay_factor = 1e-9  # GH -> H/s/day
+    return {algorithm['algorithm'].lower(): float(algorithm['paying']) * pay_factor
             for algorithm in response['miningAlgorithms']}
 
 def stratums(nx_settings):
@@ -23,11 +21,13 @@ def stratums(nx_settings):
 def get_balances(nx_settings):
     address = nx_settings['nicehash']['wallet']
 
+    # Updated endpoint
     response = nh.public_api(HOST).request(
-            'GET', f'/main/api/v2/mining/external/{address}/rigs/', '', None)
-    unpaid = response.get('unpaidAmount', None)
+            'GET', f'/main/api/v2/mining/rigs2/', '', None)
+    
+    unpaid = response.get('unpaidAmount', None)  # Check if this key still exists
     if response.get('externalAddress', True):
-        wallet = response.get('externalBalance', None)
+        wallet = response.get('externalBalance', None)  # Check if this key still exists
     else:
         try:
             response = nh.private_api(HOST,
@@ -42,4 +42,3 @@ def get_balances(nx_settings):
 
     def float_if_valid(v): return None if v is None else float(v)
     return float_if_valid(wallet), float_if_valid(unpaid)
-
